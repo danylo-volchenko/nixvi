@@ -21,92 +21,145 @@
 
 ## Configuring
 
-To start configuring, just add or modify the nix files in `./config`.
-If you add a new configuration file, remember to add it to the [`config/default.nix`](../config/default.nix) file
+Edit the Nix files in `./config`.
+Add new configuration files to [`config/default.nix`](../config/default.nix).
 
-### Current plugins
-LSP (C/Rust focused)
--  blink.cmp: A high-performance completion engine (modern alternative to nvim-cmp).
--  lspconfig: The standard interface for connecting to Language Servers.
--  lspsaga.nvim: A UI layer for LSP providing breadcrumbs, floating windows, and hover actions.
--  clangd-extensions.nvim: Enhances the C/C++ development experience with inlay hints and better type info.
--  rustaceanvim: A heavy-duty plugin for Rust development, including advanced rust-analyzer integration.
--  none-ls.nvim: Bridges the gap for formatters and linters that don't have a standalone LSP (successor to null-ls).
+### Plugins
+LSP
+-  blink.cmp: Completion.
+-  nvim-lspconfig: Language server configuration.
+-  clangd-extensions.nvim: Clangd extensions and inlay hints.
+-  rustaceanvim: Rust Analyzer, Clippy, Cargo, and DAP.
+-  nvim-navic: LSP symbols in the statusline.
 
 UI
--    lualine.nvim: A fast and customizable statusline.
--    bufferline.nvim: Adds a tab-like bar at the top for managing open buffers.
--    noice.nvim: Overhauls the command line, messages, and notification UI.
--    markview.nvim: A modern Markdown previewer that renders directly in the buffer.
--    nvim-ufo: High-performance code folding with better visual indicators.
--    nvim-colorizer.lua: Highlighting of HEX/RGB color codes directly in your code.
--    nvim-web-devicons: Provides file type icons used by many other plugins.
+-  lualine.nvim: Statusline.
+-  bufferline.nvim: Buffer list.
+-  noice.nvim: Command line and message UI.
+-  markview.nvim: Markdown and Avante rendering.
+-  nvim-web-devicons: File type icons.
+-  snacks.nvim: Dashboard, terminal, Zen mode, LazyGit, and scratch buffers.
+-  mini.nvim: Keymap hints, picker, surround, and color highlighting.
 
-Treesitter (Syntax)
--    nvim-treesitter: The core engine for advanced syntax highlighting and code parsing.
--    treesitter-context: Shows the current function/class context at the top of the screen while scrolling.
--    treesitter-textobjects: Adds smart selection based on code structure (e.g., select an entire function).
+Treesitter
+-  nvim-treesitter: Syntax, parsing, folding, and indentation.
+-  treesitter-context: Context at the top of the window.
+-  treesitter-textobjects: Structural selection and parameter swapping.
 
-Git Integration
--    gitsigns.nvim: Shows git diffs in the sign column and allows hunk management.
--    codediff.nvim: Provides a dedicated interface for viewing and managing code diffs, merges.
+Git
+-  gitsigns.nvim: Git signs and hunk actions.
+-  codediff.nvim: Diff and merge views.
 
-Utility & Navigation
--    neo-tree.nvim: Sidebar-based file explorer.
--    trouble.nvim: A pretty list for showing LSP diagnostics, references, and search results.
--    smart-splits.nvim: Directional navigation between Neovim splits.
--    undotree: Visualizes the undo history tree, allowing you to go back to previous states.
--    todo-comments.nvim: Highlights and searches for tags like TODO, FIXME, or NOTE.
--    persistence.nvim: Automatically saves and restores your sessions. -- not configured properly yet
--    comment.nvim: Simple and powerful keybindings for commenting out code.
--    nvim-autopairs: Automatically closes brackets, quotes, and parentheses.
--    lz-n: A plugin for lazy-loading your configuration to speed up startup time.
+Utilities
+-  fyler.nvim: File explorer.
+-  flash.nvim: Jump and search motions.
+-  trouble.nvim: Diagnostics, references, TODOs, and quickfix lists.
+-  smart-splits.nvim: Split navigation and resizing.
+-  undotree: Undo history.
+-  todo-comments.nvim: TODO and FIXME highlighting.
+-  persistence.nvim: Branch-specific and named sessions.
+-  lz-n: Lazy loading.
+-  Compile integration: `make -B` and quickfix diagnostics.
 
-Debugging (DAP)
--    nvim-dap: The Debug Adapter Protocol implementation for nvim.
--    nvim-dap-ui: Provides IDE-like interface for debugger (variables, stack trace, etc.).
--    nvim-dap-virtual-text: Displays variable values as virtual text next to the code during debugging.
+Debugging
+-  nvim-dap: Debug Adapter Protocol.
+-  nvim-dap-ui: Debugger UI.
+-  nvim-dap-virtual-text: Debug values as virtual text.
+-  Adapters: GDB, LLDB, and CodeLLDB for C, C++, and Rust.
 
-Ecosystem Suites
--    snacks.nvim: A collection of small plugins (dashboard, picker, etc.).
--    mini.nvim: A collection of small plugins (keymap hints, etc.)
+AI
+-  avante.nvim: Gemini chat, inline edits, and suggestions.
+-  blink-cmp-avante: Avante completion.
+
+Finders
+-  mini.pick: File, buffer, help, LSP, Git, project, and grep pickers.
 
 
-## custom QoL keymaps:
-Development & LSP Utilities
--    `<leader>cv (ShowConversions)`: Opens a floating window showing the selected text/word in Hex, Binary, Decimal, and Base64. You can copy directly from this window.
--    `<leader>cl (CopyCursorLocation)`: Generates a "permalink" (relative path + line number) from the Git root and copies it to the system clipboard.
--    `<leader>ci (toggleInlayHints)`: Toggles LSP inlay hints on/off with a notification.
--    `<leader>ch (ToggleHex)`: Toggles the current buffer between raw text and Hex representation using xxd.
--    `gx (OpenUnderCursor)`: Opens the URL or file path under the cursor using xdg-open.
--    `<leader>ct (searchTag)`: Jumps to the definition of the word under the cursor using the tags file.
+## Keymaps
+The leader key is `<Space>`. `mini.clue` shows available key groups.
 
-UI & Toggle Controls
--   `<leader>uv (Toggle Virtual Text)`: Toggles diagnostic virtual text (inline LSP diagnostics) while preserving your custom icon/prefix settings.
--   `<leader>ul (ToggleLineNumber)`: Switches between showing standard line numbers and hiding them.
--   `<leader>uL (ToggleRelativeLineNumber)`: Switches between relative line numbers and standard numbers.
--   `<leader>uw (ToggleWrap)`: Toggles line wrapping for the current buffer.
--   `<leader>cz (Zen Mode Lite)`: Simulates a "Zen" mode by toggling a large foldcolumn to center the text.
+Code and LSP
+-  `gx`: Open the path under the cursor.
+-  `<leader>cs`: Switch source/header.
+-  `<leader>ct`: Search tags.
+-  `<leader>cl`: Copy Git-relative path and line.
+-  `<leader>cv`: Show numeric and Base64 conversions.
+-  `<leader>ch`: Toggle hex view.
+-  `<leader>ci`: Toggle inlay hints.
+-  `<leader>cf`: Format.
+-  `<leader>cd`: Show line diagnostics.
+-  `cp` / `cP`: Preview definition/type definition.
+-  `<leader>cc` / `<leader>ce`: Run Rust code/explain error.
 
-Movement & Editing
--   `J / K (Visual Mode)`: Moves the selected block of code up or down while maintaining indentation and selection.
--   `J (Normal Mode)`: Joins the line below to the current line but keeps the cursor at its original position.
--   `<C-d> / <C-u>`: Scrolls page down or up while keeping the cursor centered on the screen.
--   `<leader>fy`:  Gathers every match of the current search pattern into the system clipboard.
+Finders and Git
+-  `<leader>ff` / `<leader><Space>`: Files.
+-  `<leader>fb` / `<leader>fo`: Buffers/old files.
+-  `<leader>fh` / `<leader>fk`: Help/keymaps.
+-  `<leader>fp`: Projects.
+-  `<leader>fw`: Live grep.
+-  `<leader>f?` / `<leader>f/`: All/current buffer lines.
+-  `<leader>fT`: Color schemes.
+-  `<leader>gB` / `<leader>gs` / `<leader>gS`: Branches/status/stashes.
 
-__If you have nix installed, you can directly run my config from anywhere:__
+UI and Navigation
+-  `<leader>uT`: Toggle Paradise variant.
+-  `<leader>ul` / `<leader>uL`: Toggle absolute/relative line numbers.
+-  `<leader>uw` / `<leader>um` / `<leader>uv`: Toggle wrap/Markview/diagnostic virtual text.
+-  `<leader>cz`: Toggle Zen mode.
+-  `<leader>e`: Toggle Fyler.
+-  `<leader>bd` / `<leader>bb`: Delete/switch buffer.
+-  `<leader>br` / `<leader>bl` / `<leader>bo`: Close right/left/other buffers.
+-  `<leader>bp` / `<leader>bP`: Pin/close non-pinned buffers.
+-  `<C-h>` / `<C-j>` / `<C-k>` / `<C-l>`: Move between splits.
+-  `<A-h>` / `<A-j>` / `<A-k>` / `<A-l>`: Resize splits.
+-  `<leader>ww` / `<leader>wd`: Other/close window.
+-  `<leader>w-` / `<leader>w|`: Split below/right.
+-  `<leader><Tab><Tab>` / `<leader><Tab>d`: New/close tab.
+
+Editing
+-  `J` / `K` in visual mode: Move selection down/up.
+-  `J` in normal mode: Join lines.
+-  `n` / `N`: Next/previous search result.
+-  `<C-d>` / `<C-u>`: Scroll down/up and center.
+-  `<leader>R`: Replace word under cursor.
+-  `<leader>fy`: Copy search matches.
+-  `<leader>y` / `<leader>Y`: Yank selection/line to clipboard.
+-  `<leader>p` / `<leader>D`: Paste/delete without changing the register.
+-  `<C-s>`: Save.
+
+Sessions, Build, and Diagnostics
+-  `<leader>qs` / `<leader>qS`: Restore/select session.
+-  `<leader>qn` / `<leader>qN`: Save/load named session.
+-  `<leader>ql` / `<leader>qd`: Restore last/disable session saving.
+-  `<leader>qq`: Quit all.
+-  `<leader>mc` / `<leader>mn` / `<leader>mp`: Compile/next/previous error.
+-  `<leader>mq` / `<leader>mo`: Close/open compile terminal.
+-  `<leader>xX` / `<leader>xx` / `<leader>xl`: All/buffer/LSP diagnostics.
+-  `<leader>xt` / `<leader>xQ`: TODO/quickfix list.
+
+Debugging and AI
+-  `<leader>db` / `<leader>dc` / `<leader>dt`: Breakpoint/start/terminate.
+-  `<leader>di` / `<leader>do` / `<leader>dO`: Step into/out/over.
+-  `<leader>dr` / `<leader>du` / `<leader>de`: REPL/UI/evaluate.
+-  `<leader>aa` / `<leader>ae` / `<leader>as`: Avante chat/edit/suggestions.
+
+Run with Nix:
 
 ```shell
 nix run 'github:danylo-volchenko/nixvi'
 ```
 
+The default output includes `nvim`, `gnvim`, and `neovide`. In Neovide,
+`<C-=>`, `<C-->`, and `<C-0>` increase, decrease, or reset the scale factor.
+[`config.toml`](../config.toml) contains the Iosevka Nerd Font Mono profile.
+
 ## Installing into NixOS configuration
 
-This `nixvim` flake will output a derivation that you can easily include
-in either `home.packages` for `home-manager`, or
-`environment.systemPackages` for `NixOS`. Or whatever happens with darwin?
+This `nixvim` flake exposes a package that you can include in either
+`home.packages` for Home Manager or `environment.systemPackages` for NixOS.
+The package includes the terminal and GUI launchers described above.
 
-You can add my `nixvim` configuration as an input to your `NixOS` configuration like:
+Add the flake as an input:
 
 ```nix
 {
@@ -125,22 +178,20 @@ With the input added you can reference it directly.
 {
   # NixOS
   environment.systemPackages = [ inputs.nixvim.packages.${pkgs.system}.default ];
-  # home-manager
+  # Home Manager
   home.packages = [ inputs.nixvim.packages.${pkgs.system}.default ];
 }
 ```
 
-The binary built by `nixvim` is already named as `nvim` so you can call it just
-like you normally would.
+The terminal binary is named `nvim`, and the GUI wrapper is available as both
+`gnvim` and `neovide`.
 
 ### Installing as an overlay
 
-Another method is to overlay your custom build over `neovim` from `nixpkgs`.
+Alternatively, overlay the build over `neovim` from `nixpkgs`.
 
-This method is less straight-forward but allows you to install `neovim` like
-you normally would. With this method you would just install `neovim` in your
-configuration (`home.packges = with pkgs; [ neovim ]`), but you replace
-`neovim` in `pkgs` with your derivation from `nixvim`.
+Install `neovim` normally, but replace `neovim` in `pkgs` with the flake
+derivation (`home.packages = with pkgs; [ neovim ]`).
 
 ```nix
 {
