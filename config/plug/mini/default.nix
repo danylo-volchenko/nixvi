@@ -13,5 +13,6 @@
 
 	imports = [
 		./clue.nix
+		./pick.nix
 	];
 }

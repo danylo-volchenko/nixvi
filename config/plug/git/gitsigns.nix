@@ -1,6 +1,13 @@
+{ config, lib, ... }:
 {
 	plugins.gitsigns = {
 		enable = true;
+		lazyLoad.settings = {
+			event = [
+				"BufReadPost"
+				"BufNewFile"
+			];
+		};
 		settings = {
 			trouble = true;
 			current_line_blame = true;
@@ -27,7 +34,7 @@
 			};
 		};
 	};
-	keymaps = [
+	keymaps = lib.mkIf (!config.plugins.gitsigns.lazyLoad.enable) [
 		{
 			mode = [
 				"n"

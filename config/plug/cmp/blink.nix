@@ -7,12 +7,15 @@
 	plugins = {
 		blink-cmp-dictionary.enable = true;
 		blink-cmp-spell.enable = true;
-		blink-cmp-git.enable = true;
+		blink-cmp-git.enable = false;
 		blink-emoji.enable = true;
 		blink-ripgrep.enable = true;
 		blink-cmp = {
 			enable = true;
 			setupLspCapabilities = true;
+			lazyLoad.settings = {
+				event = [ "InsertEnter" ];
+			};
 			settings = {
 				keymap = {
 					preset = "none";
@@ -33,10 +36,15 @@
 
 				sources = {
 					default = [
-						"lsp" "buffer" "path" "snippets"
-						# Community
-						"dictionary" "emoji" "git" "spell" "ripgrep"
+						"lsp" "path" "snippets" "buffer"
 					];
+					# Prose filetypes drop the workspace-wide `ripgrep` source,
+					# which fired on every keystroke and caused heavy input lag.
+					per_filetype = {
+						markdown  = [ "lsp" "path" "snippets" "buffer" "dictionary" "spell" "emoji" ];
+						text      = [ "lsp" "path" "snippets" "buffer" "dictionary" "spell" "emoji" ];
+						gitcommit = [ "lsp" "path" "snippets" "buffer" "dictionary" "spell" "emoji" ];
+					};
 					providers = {
 						lsp = {
 							name = "lsp";
@@ -49,6 +57,13 @@
 							enabled = true;
 							module = "blink-ripgrep";
 							score_offset = 2000;
+							min_keyword_length = 3;
+						};
+						buffer = {
+							name = "Buffer";
+							enabled = true;
+							module = "blink.cmp.sources.buffer";
+							min_keyword_length = 3;
 						};
 						path = {
 							name = "Path";
@@ -65,20 +80,7 @@
 							name = "Dict";
 							enabled = true;
 							module = "blink-cmp-dictionary";
-							min_keyword_length = 20;
-						};
-						git = {
-							module = "blink-cmp-git";
-							enabled = true;
-							name = "git";
-							score_offset = 10;
-							opts = {
-								commit = { };
-								git_centers = {
-									git_hub = { };
-									git_lab = { };
-								};
-							};
+							min_keyword_length = 5;
 						};
 						spell = {
 							name = "Spell";
@@ -146,7 +148,7 @@
 						border = "none";
 						draw = {
 							gap = 1;
-							treesitter = [ "lsp" ];
+							treesitter = [ ];
 							columns = [
 								{
 									__unkeyed-1 = "label";
@@ -168,7 +170,7 @@
 						window = {
 							border = "rounded";
 						};
-						auto_show_delay_ms = 50;
+						auto_show_delay_ms = 350;
 					};
 					accept = {
 						auto_brackets = {

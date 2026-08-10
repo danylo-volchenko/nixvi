@@ -1,74 +1,15 @@
-{ config, lib, ... }:
-let
-	colors = import ../../colors/${config.theme}.nix { };
-in
-	{
+{ ... }:
+{
 	plugins = {
 		bufferline = {
 			enable = true;
+			lazyLoad.settings = {
+				event = [ "DeferredUIEnter" ];
+			};
 			settings = {
 				options = {
 					separator_style = "thin"; # “slant”, “padded_slant”, “slope”, “padded_slope”, “thick”, “thin”
-				};
-				highlights = lib.mkIf config.colorschemes.base16.enable {
-					fill = {
-						fg = "none";
-						bg = "none";
-					};
-					background = {
-						fg = colors.base03;
-						bg = colors.base01;
-					};
-					buffer_selected = {
-						fg = colors.base05;
-						italic = false;
-					};
-					buffer_visible = {
-						fg = colors.base03;
-						bg = colors.base00;
-					};
-					close_button = {
-						fg = colors.base03;
-						bg = colors.base01;
-					};
-					close_button_visible = {
-						fg = colors.base03;
-						bg = colors.base01;
-					};
-					close_button_selected = {
-						fg = colors.base08;
-					};
-
-					indicator_selected = {
-						fg = colors.base00;
-					};
-					indicator_visible = {
-						fg = colors.base00;
-						bg = colors.base00;
-					};
-					separator = {
-						fg = colors.base01;
-						bg = colors.base01;
-					};
-					modified = {
-						fg = colors.base03;
-						bg = colors.base00;
-					};
-					modified_visible = {
-						fg = colors.base00;
-						bg = colors.base00;
-					};
-					modified_selected = {
-						fg = colors.base0B;
-					};
-					tab_close = {
-						fg = colors.base00;
-						bg = colors.base00;
-					};
-					duplicate = {
-						fg = colors.base03;
-						bg = colors.base01;
-					};
+					color_icons = false;
 				};
 			};
 		};
@@ -113,7 +54,7 @@ in
 		{
 			mode = "n";
 			key = "<leader>bd";
-			action = "<cmd>bdelete<cr>";
+			action = "<cmd>lua Snacks.bufdelete()<cr>";
 			options = {
 				desc = "Delete buffer";
 			};

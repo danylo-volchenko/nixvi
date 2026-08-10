@@ -1,22 +1,30 @@
 {
 	plugins.noice = {
 		enable = true;
+		lazyLoad.settings = {
+			event = [ "DeferredUIEnter" ];
+		};
 		settings = {
 			notify = { enabled = true; };
 			messages = { enabled = true; };
 			lsp = {
 				signature = { enabled = false; };
-				hover = { enabled = true; opts = { border = { style = "rounded"; }; }; };
-				message = { enabled = true; };
-				progress = { enabled = false; view = "mini"; };
-				override = {
-					"cmp.entry.get_documentation" = true;
-					"vim.lsp.util.convert_input_to_markdown_lines" = true;
-					"vim.lsp.util.stylize_markdown" = true;
+				hover = {
+					enabled = true;
+					opts = {
+						border = { style = "rounded"; };
+						focusable = true;
+					};
 				};
+				message = { enabled = true; };
+				progress = { enabled = true; view = "mini"; };
 			};
 			popupmenu = { enabled = true; backend = "nui"; };
 			presets = {bottom_search = true; long_message_to_split = true; lsp_doc_border = true;};
+			cmdline = {
+				enabled = true;
+				view = "cmdline";
+			};
 			format = {
 				filter = {
 					pattern = [

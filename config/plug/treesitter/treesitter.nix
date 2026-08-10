@@ -1,39 +1,20 @@
-{ pkgs, ... }:
+{ config, ... }:
 {
 	plugins.treesitter = {
 		enable = true;
 		folding.enable = true;
-		settings = {
-			indent = {
-				enable = true;
-			};
-			highlight = {
-				enable = true;
-			};
-			ensureInstalled = [
-				"c"
-				"rust"
-				"make"
-				"bash"
-				"diff"
-				"kconfig"
-				"cpp"
-				"cmake"
-				"lua"
-				"nix"
-				"markdown"
-				"markdown_inline"
-				"doxygen"
-				"regex"
-			];
+		indent.enable = true;
+		highlight = {
+			enable = true;
+			disable = [ "diff" ];
 		};
-
-		grammarPackages = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
+		grammarPackages = with config.plugins.treesitter.package.builtGrammars; [
 			c
 			rust
 			make
 			bash
-			diff
+			zsh
+			kdl
 			kconfig
 			cpp
 			cmake

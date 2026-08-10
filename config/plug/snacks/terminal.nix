@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-colors = import ../../colors/paradise.nix { }; 
+colors = import ../../colors/${config.theme}.nix { }; 
 in
 {
 	plugins.snacks = {
@@ -51,9 +51,6 @@ in
 			};
 		};
 	};
-	# highlight = lib.mkIf (config.plugins.snacks.enable) { 
-	#     # Add highlight groups here if needed, using `colors`
-	# };
 	keymaps = [
 		{
 			mode = [ "n" "t" ]; 

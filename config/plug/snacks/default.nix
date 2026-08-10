@@ -11,6 +11,19 @@
 			statuscolumn.enabled = true;
 			words.enabled = true;
 			image.enabled = true;
+			notifier.enabled = false;
+			zen = {
+				center = true;
+				show = {
+					statusline = false;
+					tabline = false;
+				};
+				toggles = {
+					dim = true;
+					git_signs = false;
+					mini_diff_signs = false;
+				};
+			};
 		};
 	};
 
@@ -18,7 +31,6 @@
 		./dashboard.nix
 		./indent.nix
 		./lazygit.nix
-		./picker.nix
 		./terminal.nix
 	];
 
@@ -28,12 +40,9 @@
 			options = { noremap = true; desc = "Scratch buffer"; };
 		}
 		{
-			mode = "n"; key = "<leader>bs"; action = ":lua Snacks.scratch().select()<cr>";
-			options = { noremap = true; desc = "Scratch buffer"; };
-		}
-		{
-			mode = "n"; key = "<leader>qp"; action = ":lua Snacks.picker.projects()<cr>";
-			options = { desc = "Open projects"; silent = true; };
+			mode = "n"; key = "<leader>bS"; action = ":lua Snacks.scratch({ file = vim.fn.input('Scratch name: ') })<cr>";
+			options = { noremap = true; desc = "Named scratch buffer"; };
 		}
 	];
+
 }

@@ -48,21 +48,6 @@
 		}
 
 		{
-			event = "DirChanged";
-			desc = "Auto-restore session when changing projects";
-			pattern = "global"; # Trigger only when the global CWD changes (like via Snacks Picker)
-				callback = {
-					__raw = ''
-						function()
-						local success, _ = pcall(require, "persistence")
-							if success then
-								require("persistence").load()
-							end
-						end '';
-				};
-		}
-
-		{
 			event = [
 				"BufNewFile"
 			];
@@ -71,6 +56,7 @@
 			];
 			callback = { __raw =  ''
 				function()
+				if not vim.bo.modifiable then return end
 				local filename = vim.fn.expand("%:t:r"):upper()
 				local include_guard = "__" .. filename .. "_H__"
 				local boilerplate = string.format(
@@ -86,29 +72,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/**********************************************************
-* Include files
-**********************************************************/
+/* include files */
 
-/**********************************************************
-* Macro definitions
-**********************************************************/
+/* macro definitions */
 
-/**********************************************************
-* Type definitions
-**********************************************************/
+/* type definitions */
 
-/**********************************************************
-* Variable declarations
-**********************************************************/
+/* variable declarations */
 
-/**********************************************************
-* Function Prototypes
-**********************************************************/
+/* function Prototypes */
 
-/**********************************************************
-* Functions
-**********************************************************/
+/* function definitions */
 
 #ifdef __cplusplus
 }
@@ -130,35 +104,24 @@ extern "C" {
 			];
 			callback = {__raw = ''
 				function()
+				if not vim.bo.modifiable then return end
 				local boilerplate = [[
 /**
   * @file
   * @brief
   */
 /* vim: set noet tw=4 sw=4: */
-/**********************************************************
-* Include files
-**********************************************************/
+/* include files */
 
-/**********************************************************
-* Macro definitions
-**********************************************************/
+/* macro definitions */
 
-/**********************************************************
-* Type definitions
-**********************************************************/
+/* type definitions */
 
-/**********************************************************
-* Variable declarations
-**********************************************************/
+/* variable declarations */
 
-/**********************************************************
-* Function Prototypes
-**********************************************************/
+/* function Prototypes */
 
-/**********************************************************
-* Functions
-**********************************************************/
+/* function definitions */
 ]]
 				vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(boilerplate, "\n"))
 				end
@@ -175,7 +138,8 @@ extern "C" {
 			callback = {
 				__raw = ''
 					function()
-						local boilerplate = [[ /* vim: set noet tw=4 sw=4: */ ]]
+					if not vim.bo.modifiable then return end
+					local boilerplate = [[ /* vim: set noet tw=4 sw=4: */ ]]
 						vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(boilerplate, "\n"))
 					end
 				'';
@@ -187,6 +151,7 @@ extern "C" {
 			callback = {
 				__raw = ''
 					function()
+					if not vim.bo.modifiable then return end
 						local function get_relative_path_parts()
 							local full_path = vim.api.nvim_buf_get_name(0)
 							local parts = vim.split(full_path, "/", { trimempty = true })
@@ -296,6 +261,20 @@ extern "C" {
 			'';
 			};
 		}
+		# Keep Neovim open when closing the last buffer
+		{
+			event = "BufDelete";
+			callback = {
+				__raw = ''
+					function()
+						if #vim.fn.getbufinfo({ buflisted = 1 }) == 0 then
+							vim.cmd("enew")
+						end
+					end
+				'';
+			};
+		}
+
 #		{
 #		  event = "ExitPre";
 #		  desc = "Terminal exit confirmation";

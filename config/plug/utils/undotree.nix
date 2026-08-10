@@ -1,16 +1,12 @@
 {
-  plugins.undotree = {
-    enable = true;
-    settings = {
-      autoOpenDiff = true;
-      focusOnToggle = true;
-    };
-  };
+  extraConfigLua = ''
+    vim.cmd.packadd("nvim.undotree")
+  '';
   keymaps = [
     {
       mode = "n";
       key = "<leader>ut";
-      action = "<cmd>UndotreeToggle<CR>";
+      action = "<cmd>Undotree<CR>";
       options = {
         silent = true;
         desc = "Undotree";

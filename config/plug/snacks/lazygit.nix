@@ -14,7 +14,7 @@
 			theme = {
 				activeBorderColor    = { fg = "String"; bold = true; };
 				defaultFgColor       = { fg = "Normal"; };
-				inactiveBorderColor  = { fg = "#E8E3E3"; };
+				inactiveBorderColor  = { fg = "Comment"; };
 				optionsTextColor     = { fg = "Function"; };
 				selectedLineBgColor  = { bg = "CursorLine"; };
 				unstagedChangesColor = { fg = "DiagnosticError"; };

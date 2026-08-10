@@ -1,0 +1,8 @@
+[font]
+normal = ["Iosevka Nerd Font Mono"]
+size = 18
+hinting = "full"
+edging = "subpixelantialias"
+
+[font.features]
+"Iosevka Nerd Font Mono" = ["+calt", "+clik", "+liga", "+ss14", "+zero"]

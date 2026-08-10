@@ -44,6 +44,7 @@
 				'';
 			};
 		};
+		clipboard.providers.wl-copy.enable = true;
 		opts = {
 			# Enable relative line numbers
 			number = true;
@@ -115,13 +116,13 @@
 			cursorline = true; # Highlight the line where the cursor is located
 
 			# Set fold settings
-			# These options were reccommended by nvim-ufo
-			# See: https://github.com/kevinhwang91/nvim-ufo#minimal-configuration
+			# Keep folds open by default while using native Tree-sitter folding.
 			foldcolumn = "0";
 			foldlevel = 99;
 			foldlevelstart = 99;
 			foldenable = true;
-			foldmethod = "indent";
+			foldmethod = "expr";
+			foldexpr = "v:lua.vim.treesitter.foldexpr()";
 
 			# Always keep 10 lines above/below cursor unless at start/end of file
 			scrolloff = 10;
@@ -129,15 +130,16 @@
 			# Place a column line
 			colorcolumn = "105";
 
-			# Reduce timeout to 10ms
-			timeoutlen = 10;
+			# Timeout for multi-key mappings (e.g. g., gc, <space>e).
+			# 10ms was too short for human typing speed.
+			timeoutlen = 300;
 
 			# Set encoding type
 			encoding = "utf-8";
 			fileencoding = "utf-8";
 
 			# More space in the neovim command line for displaying messages
-			cmdheight = 0;
+			cmdheight = 2;
 
 			# We don't need to see things like INSERT anymore
 			showmode = false;
@@ -145,9 +147,7 @@
 			# Spell
 			spelllang = "en_us";
 			spell = false;
-			# Clipboard provider
-			clipboard.providers.wl-copy.enable = true;
-			#clipboard = "unnamedplus";
+
 
 			list = true;
 			listchars = {

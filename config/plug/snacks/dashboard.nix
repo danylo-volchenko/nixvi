@@ -4,16 +4,16 @@ lib,
 ...
 }:
 let
-	 text = pkgs.writeShellScriptBin "text" # bash
+	text = pkgs.writeShellScriptBin "text"
 		''
 		#!/usr/bin/env sh
 		echo -e "
-	     ┓  •   •     ┓        •		
-	┏┓┏┓┏┫  ┓┏  ┓┏┓  ╋┣┓┏┓  ┓┏┏┓┏┓┏┓	
-	┗┫┗┛┗┻  ┗┛  ┗┛┗  ┗┛┗┗   ┗┻┛┗┛ ┗		
-	 ┛									
-"
-	'';
+        ┓  •   •     ┓        •
+   ┏┓┏┓┏┫  ┓┏  ┓┏┓  ╋┣┓┏┓  ┓┏┏┓┏┓┏┓
+   ┗┫┗┛┗┻  ┗┛  ┗┛┗  ┗┛┗┗   ┗┻┛┗┛ ┗
+    ┛
+	"
+		'';
 in
 	{
 	plugins.snacks = {
@@ -26,7 +26,7 @@ in
 							icon = " ";
 							key = "f";
 							desc = "Find File";
-							action = ":lua Snacks.picker.files()";
+							action = ":Pick files";
 						}
 						{
 							icon = " ";
@@ -38,7 +38,7 @@ in
 							icon = " ";
 							key = "p";
 							desc = "Projects";
-							action = ":lua Snacks.picker.projects()";
+							action = ":lua MiniPickProjects()";
 						}
 						{
 							icon = " ";
@@ -50,13 +50,13 @@ in
 							icon = " ";
 							key = "/";
 							desc = "Find Text";
-							action = ":lua Snacks.picker.grep()";
+							action = ":Pick grep_live";
 						}
 						{
 							icon = " ";
 							key = "r";
 							desc = "Recent Files";
-							action = ":lua Snacks.picker.recent()";
+							action = ":Pick oldfiles";
 						}
 						{
 							icon = "";
@@ -101,6 +101,7 @@ in
 						pane = 2;
 						title = "Projects";
 						section = "projects";
+						session = false;
 						padding = 1;
 						indent = 3;
 					}
@@ -120,4 +121,25 @@ in
 			};
 		};
 	};
+
+	extraConfigLua = ''
+		local dashboard = require("snacks.dashboard")
+		local Dashboard = dashboard.Dashboard
+		local dashboard_update = Dashboard.update
+		local dashboard_size = Dashboard.size
+
+		Dashboard.size = function(self)
+			if not self.win or not vim.api.nvim_win_is_valid(self.win) then
+				return { width = vim.o.columns, height = vim.o.lines }
+			end
+			return dashboard_size(self)
+		end
+
+		Dashboard.update = function(self)
+			if not self.win or not vim.api.nvim_win_is_valid(self.win) then
+				return
+			end
+			return dashboard_update(self)
+		end
+	'';
 }

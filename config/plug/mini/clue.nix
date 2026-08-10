@@ -33,6 +33,7 @@
 			{ mode = "x"; keys = "z"; }
 		];
 		clues = [
+			{ mode = "n"; keys = "<Leader>a"; desc = "+ai"; }
 			{ mode = "n"; keys = "<Leader>f"; desc = "+find/file"; }
 			{ mode = "n"; keys = "<Leader>q"; desc = "+quit/session"; }
 			{ mode = "n"; keys = "<Leader>g"; desc = "+git"; postkeys = "<Leader>g"; }
@@ -41,7 +42,9 @@
 			{ mode = "n"; keys = "<Leader>w"; desc = "+windows"; }
 			{ mode = "n"; keys = "<Leader><Tab>"; desc = "+tabs"; }
 			{ mode = "n"; keys = "<Leader>c"; desc = "+code"; }
-			{ mode = "n"; keys = "<Leader>x"; desc = "+trouble"; }
+			{ mode = "n"; keys = "<Leader>e"; desc = "+explorer"; }
+			{ mode = "n"; keys = "<Leader>m"; desc = "+make/build"; }
+			{ mode = "n"; keys = "<Leader>x"; desc = "+diagnostics"; }
 			{ mode = "n"; keys ="<Leader>d"; desc="+debug";}
 			{ __raw = "require('mini.clue').gen_clues.builtin_completion()"; }
 			{ __raw = "require('mini.clue').gen_clues.g()"; }

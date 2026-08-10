@@ -1,125 +1,168 @@
-{ pkgs, ... }:
 {
-	extraPlugins = with pkgs.vimUtils; [
-		(buildVimPlugin {
-			pname = "compile.nvim";
-			version = "unstable";
-			src = pkgs.fetchFromGitHub {
-				owner = "pohlrabi404";
-				repo = "compile.nvim";
-				rev = "main";
-				hash = "sha256-DE1aWdIY+DxraVAuA0aU3qL6BtGyUWrobdzTcSoYjK4=";
-			};
-		})
-	];
+  extraConfigLua = ''
+    local compile_job
+    local compile_buf
+    local compile_win
+    local compile_cwd
 
-	extraConfigLua = ''
-	require('compile').setup({
-		highlight_under_cursor = {
-			-- Enable or disable highlighting the error under your cursor. It’s a great visual cue!
-			enabled = true,
-			-- The timeout in milliseconds for the highlight to appear in the terminal.
-			timeout_term = 500,
-			-- The timeout in milliseconds for the highlight in a normal buffer.
-			timeout_normal = 200,
-		},
-		cmds = {
-			default = "make -B"
-		},
-		patterns = {
-			-- A table of patterns to match compiler output. This is how the plugin finds
-			-- files, lines, and columns for errors. The "123" and "12" refer to the
-			-- capture groups in the regex.
-			-- 1 stands for filename
-			-- 2 stands for row number
-			-- 3 stands for col number (can be omitted if the language doesn't support)
-			-- For example: col:filename:row will be "312" instead
-			rust = { "(%S+):(%d+):(%d+)", "123" },
-			-- Match only .c, .h, .cpp, .hpp for filename:line
-			Makefile = { "%[(%S+%.c|%S+%.h|%S+%.cpp|%S+%.hpp|%S+%.cxx|%S+%.hxx):(%d+):.+%]", "12" },
-			-- I will also add more regex for different error types soon
-		},
-		colors = {
-			-- Customize the highlight colors for different parts of the error message.
-			-- These correspond to Neovim highlight groups.
-			file = "WarningMsg",
-			row = "CursorLineNr",
-			col = "CursorLineNr",
-		},
-		term_win_name = "CompileTerm",
-		term_win_opts = { split = "below", height = 0.4 },
-		enter = false,
-		keys = {
-			-- Here's where you define all the handy keybindings!
-			global = {
-				-- Normal mode keybindings, you can group modes by writing them next to each other
-				-- eg: ["nvi"] for normal, select and insert mode keybinding
-				["n"] = {
-					-- start compile/recompile, will also open the terminal
-					["<localleader>cc"] = "require(\'compile\').compile()",
-					["<localleader>cn"] = "require(\'compile\').next_error()",
-					["<localleader>cp"] = "require(\'compile\').prev_error()",
-					["<localleader>cl"] = "require(\'compile\').last_error()",
-					["<localleader>cf"] = "require(\'compile\').first_error()",
-				},
-			},
-			term = {
-				-- Keybindings specific to the terminal buffer.
-				-- Global keybinding for terminal will work everywhere but will be removed
-				-- when you close the terminal buffer
-				global = {
-					["n"] = {
-						-- clears the terminal
-						["<localleader>cr"] = "require(\'compile\').clear()",
-						-- quits the terminal buffer.
-						["<localleader>cq"] = "require(\'compile\').destroy()",
-					},
-				},
-				-- This one will only work INSIDE the terminal buffer
-				buffer = {
-					["n"] = {
-						["r"] = "require(\'compile\').clear()",
-						["c"] = "require(\'compile\').compile()",
-						-- quit the terminal.
-						["q"] = "require(\'compile\').destroy()",
-						["n"] = "require(\'compile\').next_error()",
-						["p"] = "require(\'compile\').prev_error()",
-						["0"] = "require(\'compile\').first_error()",
-						["$"] = "require(\'compile\').last_error()",
-						-- Jump to the nearest error under or before your cursor
-						["<Cr>"] = "require(\'compile\').nearest_error()",
-					},
-					-- Tricks to clear warning/error list
-					["t"] = {
-						-- Press `<CR>` in terminal mode to send a command and clear highlights.
-						["<CR>"] = "require(\'compile\').clear_hl()",
-						-- This sends the command to the terminal without clearing the error list!
-						["<C-j>"] = "require(\'compile.term\').send_cmd(\'\')",
-					},
-				},
-			},
-		},
-	})
-	'';
+    local function compile_close()
+      if compile_job and compile_job > 0 and vim.fn.jobwait({ compile_job }, 0)[1] == -1 then
+        vim.fn.jobstop(compile_job)
+      end
+      compile_job = nil
+      if compile_win and vim.api.nvim_win_is_valid(compile_win) then
+        vim.api.nvim_win_close(compile_win, true)
+      end
+      if compile_buf and vim.api.nvim_buf_is_valid(compile_buf) then
+        vim.api.nvim_buf_delete(compile_buf, { force = true })
+      end
+      compile_win = nil
+      compile_buf = nil
+    end
 
-	keymaps = [
-		{
-			mode = "n";
-			key = "<leader>cc";
-			action = ":lua require('compile').compile()<CR>";
-			options = { silent = true; desc = "Compile"; };
-		}
-		{
-			mode = "n";
-			key = "<leader>cn";
-			action = ":lua require('compile').next_error()<CR>";
-			options = { silent = true; desc = "Next compilation error"; };
-		}
-		{
-			mode = "n";
-			key = "<leader>cq";
-			action = ":lua require('compile').destroy()<CR>";
-			options = { silent = true; desc = "Close compileterm"; };
-		}
-	];
+    local function compile_parse(lines)
+      local items = {}
+      for _, line in ipairs(lines) do
+        line = line
+          :gsub("\27%][^\7]*\7", "")
+          :gsub("\27%[[0-?]*[ -/]*[@-~]", "")
+          :gsub("\r", "")
+        local file, row, col, text = line:match("([%w%._/%-]+):(%d+):(%d+):%s*(.*)")
+        if not file then
+          file, row, col = line:match("%-%->%s*([^:]+):(%d+):(%d+)")
+          text = line
+        end
+        if file and row and col then
+          if not vim.fn.isabsolutepath(file) then
+            file = vim.fs.normalize(vim.fs.joinpath(compile_cwd or vim.fn.getcwd(), file))
+          end
+          table.insert(items, {
+            filename = file,
+            lnum = tonumber(row),
+            col = tonumber(col),
+            text = text or line,
+            type = line:find("warning", 1, true) and "W" or "E",
+          })
+        end
+      end
+      return items
+    end
+
+    function Compile()
+      if compile_job and compile_job > 0 and vim.fn.jobwait({ compile_job }, 0)[1] == -1 then
+        vim.notify("A compile job is already running", vim.log.levels.WARN)
+        return
+      end
+
+      local makefile = vim.fs.find({ "Makefile", "makefile", "GNUmakefile" }, {
+        upward = true,
+        path = vim.fn.getcwd(),
+        type = "file",
+      })[1]
+      if not makefile then
+        compile_cwd = vim.fn.getcwd()
+        vim.notify("No Makefile found; <leader>mo opens a terminal here", vim.log.levels.WARN)
+        return
+      end
+      local cwd = vim.fs.dirname(makefile)
+      compile_cwd = cwd
+      compile_close()
+
+      compile_buf = vim.api.nvim_create_buf(false, true)
+      vim.api.nvim_buf_set_name(compile_buf, "CompileTerm")
+      compile_win = vim.api.nvim_open_win(compile_buf, true, {
+        split = "below",
+        height = math.max(8, math.floor(vim.o.lines * 0.4)),
+      })
+      vim.bo[compile_buf].bufhidden = "wipe"
+      vim.bo[compile_buf].filetype = "snacks_terminal"
+
+      local output = {}
+      local function collect(_, data)
+        if data then
+          vim.list_extend(output, data)
+        end
+      end
+
+      compile_job = vim.fn.jobstart({ "make", "-B" }, {
+        cwd = cwd,
+        term = true,
+        on_stdout = collect,
+        on_stderr = collect,
+        on_exit = function(_, code)
+          vim.schedule(function()
+            local items = compile_parse(output)
+            vim.fn.setqflist({}, "r", {
+              title = "make -B",
+              items = items,
+            })
+            vim.notify(
+              code == 0
+                and "Compile succeeded; <leader>mo opens a terminal"
+                or "Compile failed; quickfix updated, <leader>mo opens a terminal",
+              code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR
+            )
+            compile_job = nil
+          end)
+        end,
+      })
+
+      if compile_job <= 0 then
+        vim.notify("Unable to start make", vim.log.levels.ERROR)
+        compile_close()
+      end
+    end
+
+    function CompileNextError()
+      vim.cmd("cnext")
+    end
+
+    function CompilePreviousError()
+      vim.cmd("cprevious")
+    end
+
+    function CompileClose()
+      compile_close()
+    end
+
+    function CompileOpenTerminal()
+      Snacks.terminal.toggle(nil, {
+        cwd = compile_cwd or vim.fn.getcwd(),
+        win = { position = "bottom", height = 10 },
+      })
+    end
+  '';
+
+  keymaps = [
+    {
+      mode = "n";
+      key = "<leader>mc";
+      action = "<cmd>lua Compile()<CR>";
+      options = { desc = "Compile"; silent = true; };
+    }
+    {
+      mode = "n";
+      key = "<leader>mn";
+      action = "<cmd>lua CompileNextError()<CR>";
+      options = { desc = "Next compilation error"; silent = true; };
+    }
+    {
+      mode = "n";
+      key = "<leader>mp";
+      action = "<cmd>lua CompilePreviousError()<CR>";
+      options = { desc = "Previous compilation error"; silent = true; };
+    }
+    {
+      mode = "n";
+      key = "<leader>mq";
+      action = "<cmd>lua CompileClose()<CR>";
+      options = { desc = "Close compile terminal"; silent = true; };
+    }
+    {
+      mode = "n";
+      key = "<leader>mo";
+      action = "<cmd>lua CompileOpenTerminal()<CR>";
+      options = { desc = "Open terminal in compile directory"; silent = true; };
+    }
+  ];
 }
